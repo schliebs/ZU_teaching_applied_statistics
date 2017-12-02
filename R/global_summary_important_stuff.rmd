@@ -1,0 +1,342 @@
+---
+title: "tl:dr-Skript: Summary over the most important bits"
+author: "Marcel Schliebs"
+date: "2 Dezember 2017"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+source("C:/Users/Schliebs/OneDrive/github/ZU_teaching_applied_statistics/R/load_datasets/01a_loaddata_gles.R")
+```
+
+
+This document shall recapitulate the most important bits we covered during the tutorial in Applied Statistics with R @Zeppelin University in Fall 17. If you have any questions, please shoot me an e-mail.  
+
+# Loading Packages
+
+Packages are collections of useful functions that fellow nerds wrote and put them online. One of the greatest benefits of R is its extremely rich framework of packages for every kind of use that you can imagine.
+
+At first, we need to load some packages. If you do not have them installed them yet, please do so **once**. You can install a package by running the command `install.packages("NAME")` in R. 
+
+The most important packages we got to know during the semester were:
+
+Data management:
+* `plyr`: Plyr is the older (and outdated) brother of tidyverse. We always need to load it once BEFORE (!) the latter in order to avoid nasty conflicts. 
+* `tidyverse`: A very useful collection of tools for data-management. 
+* `magrittr`: Gives us the beautiful Doppelpipe `%<>%`
+
+Data Loading: 
+* `haven` enables us to nicely import .sav or .dta Datasets.
+
+Data Viz
+* `ggplot2` is the most beautiful shit ever
+* `ggthemes` and `hrbrthemes` make it even more brilliant
+* `extrafont` fixes a problem with fonts for outputting plots to pdf
+
+
+```{r,warning = FALSE}
+library(plyr)
+library(tidyverse)
+library(magrittr)
+
+library(haven)
+
+library(ggplot2)
+library(ggthemes)
+library(hrbrthemes)
+library(extrafont)
+```
+
+
+# Laden des Datensatzes: 
+
+
+```{r,warning = FALSE,eval=FALSE}
+
+
+
+```
+
+Ein erster Überblick
+```{r,warning = FALSE}
+str(gles_data)
+
+head(gles_data)
+
+```
+
+# Einfache Scatterplots
+
+## Zusammenhang Sympathie Jamaika ~ Migrationseinstellung
+
+```{r,warning = FALSE}
+ggplot(data = gles_data,            # GGplot starten und Datensatz angeben
+       aes(x = migration_z,        # Specify mapping: aestethics (variable stuff)
+           y = jamaika_z))  + 
+  geom_jitter()                              # jittered scatterplot
+  
+```
+
+## Hinzufügen einer Regressionsgerade
+```{r,warning = FALSE}
+ggplot(data = gles_data,                          
+       mapping = aes(x = migration_z,        
+                     y = jamaika_z)) +  
+  geom_jitter(color = "purple") + 
+  geom_smooth(method = "lm") # lineare Regressionsgerade
+
+```
+
+
+
+## Unterscheiden nach Parteiidentifikation (farblich)
+
+```{r,warning = FALSE}
+ggplot(data = gles_data,                          
+       mapping = aes(x = migration_z,        
+                     y = jamaika_z,
+                     col = pid)) +  # groupieren nach Color !
+  geom_jitter() + 
+  geom_smooth(method = "lm",se = FALSE) # wir schalten die Konfidenzintervalle aus 
+
+```
+
+
+## Die Farben sind hässlich: 
+```{r,warning = FALSE}
+ggplot(data = gles_data,                          
+       mapping = aes(x = migration_z,        
+                     y = jamaika_z,
+                     col = pid)) +  
+  geom_jitter(alpha = 0.4) +  # wir machen die Punkte ein bisschen durchsichtig
+  geom_smooth(size = 2,method = "lm",se = FALSE)+ 
+  scale_color_manual(values = c("afd" = "blue",  # wir weisen den Parteien farben zu
+                                "fdp" = "yellow",
+                                "gruene" = "green",
+                                "keine" = "grey",
+                                "linke" = "purple",
+                                "spd" = "red",
+                                "union" = "black"),
+                     name = "PID",
+                     labels = c("Die Blauen","Liberale","Ökos","Keine","Kommunisten","Sozis","Union"))
+```
+
+
+## Achsenlabels
+```{r,warning = FALSE}
+ggplot(data = gles_data,                          
+       mapping = aes(x = migration_z,        
+                     y = jamaika_z,
+                     col = pid)) +  
+  geom_jitter(alpha = 0.7) +  
+  geom_smooth(size = 2,method = "lm",se = FALSE)+ 
+  scale_color_manual(values = c("afd" = "blue",
+                                "fdp" = "yellow",
+                                "gruene" = "green",
+                               "keine" = "grey",
+                                "linke" = "purple",
+                                "spd" = "red",
+                                "union" = "black"),
+                     name = "PID",
+                     labels = c("AfD","FDP","Grüne","Keine","Linke","SPD","Union")) + 
+  labs(x = "Migrationsfeindlichkeit", # Labels
+       y = "Sympathie Jamaika",
+       title = "Titel",
+       subtitle = "Untertitel",
+       caption = "Dieser Plot wird ihnen präsentiert von ZF")
+```
+
+
+
+## Schönes Theme
+Jetzt noch ein Theme und sichern unter dem Objekt gg1
+```{r,warning = FALSE}
+gglala <-  # zuweisen
+  ggplot(data = gles_data,                          
+       mapping = aes(x = migration_z,        
+                     y = jamaika_z,
+                     col = pid)) +  
+  geom_jitter(alpha = 0.7) +  
+  geom_smooth(size = 2,method = "lm",se = FALSE)+ 
+  scale_color_manual(values = c("afd" = "blue",
+                                "fdp" = "yellow",
+                                "gruene" = "green",
+                                "keine" = "grey",
+                                "linke" = "purple",
+                                "spd" = "red",
+                                "union" = "black"),
+                     name = "PID",
+                     labels = c("AfD","FDP","Grüne","Keine","Linke","SPD","Union")) + 
+  labs(x = "Migrationsfeindlichkeit", 
+       y = "Sympathie Jamaika",
+       title = "Titel",
+       subtitle = "Untertitel",
+       caption = "whatever") + 
+ theme_ipsum(grid = "Y") #Theme mit schöner Schrit und mit horizontalen Grid-Linien
+
+gglala #print
+```
+
+
+## Output zum Einbinden ins Paper
+
+### Entweder pdf
+```{r,warning = FALSE,eval=FALSE}
+ggsave(filename = "results/gles_jitterplot.pdf",
+       plot = gglala,
+       device = "pdf",
+       width = 10,
+       height = 6,
+       dpi = 2000)
+```
+
+
+### oder png
+```{r,warning = FALSE,eval=FALSE}
+ggsave(filename = "results/gles_jitterplot.png",
+       plot = gg1,
+       device = "png",
+       width = 10,
+       height = 6,
+       dpi = 2000)
+```
+
+
+
+
+
+#######################################################################
+
+# Barplots Wahlentscheidung
+
+## Eindimensional
+```{r,warning = FALSE}
+table(gles_data$zweitstimme)
+```
+
+## Häufigkeitsverteilung der Zweitstimme
+```{r,warning = FALSE}
+ggplot(data = gles_data) + 
+  geom_bar(aes(x = zweitstimme))
+```
+
+               
+## In Prozent
+```{r,warning = FALSE}
+ggplot(data = gles_data) + 
+  geom_bar(aes(x = zweitstimme,
+               y = (..count..)/sum(..count..), # relative häufigkeit 
+               fill = zweitstimme))+ # Farblich
+  scale_fill_manual(values = c("afd" = "blue",
+                                "fdp" = "yellow",
+                                "gruene" = "green",
+                                "andere" = "grey",
+                                "linke" = "purple",
+                                "spd" = "red",
+                                "union" = "black"),
+                     name = "Zweitstimme",
+                     labels = c("AfD","Andere","FDP","Grüne","Linke","SPD","Union"))
+```
+
+
+## Labels + Theme/Labels
+```{r,warning = FALSE}
+ggplot(data = gles_data,
+       aes(x = zweitstimme,
+           y = (..count..)/sum(..count..), # relative häufigkeit 
+           fill = zweitstimme)) + 
+  geom_bar(stat = "count")+ # Farblich 
+  
+  geom_text(aes(x = zweitstimme,
+                y=..count../sum(..count..)+0.02,
+                label=paste0(round(..count../sum(..count..)*100,1)," %"),
+                color = zweitstimme), 
+            stat="count")+
+  scale_fill_manual(values = c("afd" = "blue",
+                               "fdp" = "yellow",
+                               "gruene" = "green",
+                               "andere" = "grey",
+                               "linke" = "purple",
+                               "spd" = "red",
+                               "union" = "black"),
+                    name = "Zweitstimme",
+                    labels = c("AfD","Andere","FDP","Grüne","Linke","SPD","Union"))+
+  scale_color_manual(values = c("afd" = "blue",
+                                "fdp" = "yellow",
+                                "gruene" = "green",
+                                "andere" = "grey",
+                                "linke" = "purple",
+                                "spd" = "red",
+                                "union" = "black"),
+                     name = "Zweitstimme",
+                     labels = c("AfD","Andere","FDP","Grüne","Linke","SPD","Union"))+
+  labs(x = "Partei", 
+       y = "Anteil Zweitstimmen",
+       title = "Titel",
+       subtitle = "Untertitel",
+       caption = "whatever") + 
+  theme_ipsum(grid = "Y") #Theme mit schöner Schrit und mit horizontalen Grid-Linien
+```
+
+
+
+
+## Twodimensional Barplots  
+```{r,warning = FALSE}
+
+# Descriptive overview
+round(
+  prop.table(
+  table(zweit = gles_data$zweitstimme,
+        erst = gles_data$erststimme),margin = 1),2)
+
+
+# In plot
+gg1 <- #objekt zuweisen
+  ggplot(data = gles_data,
+         aes(x = zweitstimme,
+             y = (..count..)/sum(..count..), 
+             fill = erststimme)) + 
+  geom_bar(stat = "count")+ 
+  scale_fill_manual(values = c("afd" = "blue",
+                               "fdp" = "yellow",
+                               "gruene" = "green",
+                               "andere" = "grey",
+                               "linke" = "purple",
+                               "spd" = "red",
+                               "union" = "black"),
+                    name = "Davon Erststimme",
+                    labels = c("AfD","Andere","FDP","Grüne","Linke","SPD","Union"))+
+  scale_color_manual(values = c("afd" = "blue",
+                                "fdp" = "yellow",
+                                "gruene" = "green",
+                                "andere" = "grey",
+                                "linke" = "purple",
+                                "spd" = "red",
+                                "union" = "black"),
+                     name = "Davon Erststimme",
+                     labels = c("AfD","Andere","FDP","Grüne","Linke","SPD","Union"))+
+  labs(x = "Zweitstimme", 
+       y = "Anteil Zweitstimmen",
+       title = "Titel",
+       subtitle = "Untertitel",
+       caption = "whatever") + 
+  theme_ipsum(grid = "Y")
+gg1 #print
+```
+
+
+
+## Output to pdf
+```{r,warning = FALSE,eval=FALSE}
+ggsave(filename = "results/gles_barplot__stacked.pdf",
+       plot = gg1,
+       device = "pdf",
+       width = 10,
+       height = 6,
+       dpi = 1000)
+```
+
+
