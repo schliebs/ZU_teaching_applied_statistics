@@ -73,11 +73,13 @@ Furthermore, your possibilities are unlimited: try out one of the following them
 
 ## Option 2: Fix font-Problem and use hrbrthemes
 
+The problem was that most of you did not have the **Roboto**-Font installed on their Computers. You can do this by following steps: 
+
 ### Windows
 
-1. 
-2. 
-3. 
+1. Go into the subfolder **tutorials_help/ggplot_themes_fonts/Roboto**. In there, select all font files. 
+2. Enter **Schriftarten** into the windows search bar. You will be directed to the respective window. 
+3. Drag all the fonts from the **Roboto**-folder into the **Schriftarten**-folder. They will be installed automatically. 
 
 ### Mac
 
@@ -85,12 +87,15 @@ Since I don't have a mac to test this, I cannot guarantee a safe solution, but y
 
 ### Final steps 
 
-Now, we have to sync the font types on your PC/Mac with R-Studio **once**
-
+Now, we have to sync the font types on your PC/Mac with R-Studio.
+Thus, do the following **only once**
 ```{r,warning = FALSE,eval = FALSE}
+install.packages("hrbrthemes")
+install.packages("extrafont")
 
+extrafont::font_import() #
 ```
-
+After running `extrafont::font_import`, you will need to type **Y** and press enter. 
 
 Then, everytime you want to plot something, do the following: 
 

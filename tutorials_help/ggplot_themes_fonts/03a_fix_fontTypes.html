@@ -167,17 +167,28 @@ library(ggthemes)</code></pre>
 </div>
 <div id="option-2-fix-font-problem-and-use-hrbrthemes" class="section level2">
 <h2>Option 2: Fix font-Problem and use hrbrthemes</h2>
+<p>The problem was that most of you did not have the <strong>Roboto</strong>-Font installed on their Computers. You can do this by following steps:</p>
 <div id="windows" class="section level3">
 <h3>Windows</h3>
 <ol style="list-style-type: decimal">
-<li></li>
+<li>Go into the subfolder <strong>tutorials_help/ggplot_themes_fonts/Roboto</strong>. In there, select all font files.</li>
+<li>Enter <strong>Schriftarten</strong> into the windows search bar. You will be directed to the respective window.</li>
+<li>Drag all the fonts from the <strong>Roboto</strong>-folder into the <strong>Schriftarten</strong>-folder. They will be installed automatically.</li>
 </ol>
 </div>
 <div id="mac" class="section level3">
 <h3>Mac</h3>
+<p>Since I don’t have a mac to test this, I cannot guarantee a safe solution, but you should be able to install <strong>Roboto</strong> through the steps outlined [here] (<a href="https://www.maceinsteiger.de/how-to/fonts-schriften-unter-mac-os-installieren/" class="uri">https://www.maceinsteiger.de/how-to/fonts-schriften-unter-mac-os-installieren/</a>)</p>
 </div>
 <div id="final-steps" class="section level3">
 <h3>Final steps</h3>
+<p>Now, we have to sync the font types on your PC/Mac with R-Studio. Thus, do the following <strong>only once</strong></p>
+<pre class="r"><code>install.packages(&quot;hrbrthemes&quot;)
+install.packages(&quot;extrafont&quot;)
+
+extrafont::font_import() #</code></pre>
+<p>After running <code>extrafont::font_import</code>, you will need to type <strong>Y</strong> and press enter.</p>
+<p>Then, everytime you want to plot something, do the following:</p>
 <pre class="r"><code>#install.packages(&quot;hrbrthemes&quot;)
 library(ggplot2)
 library(hrbrthemes)
