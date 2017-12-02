@@ -55,29 +55,44 @@ p +
 
 Furthermore, your possibilities are unlimited: try out one of the following themes:
 
-theme_base: a theme resembling the default base graphics in R. See also theme_par\\
-theme_calc: a theme based on LibreOffice Calc.\\
-theme_economist: a theme based on the plots in the The Economist magazine.\\
-theme_excel: a theme replicating the classic ugly gray charts in Excel\\
-theme_few: theme from Stephen Few’s “Practical Rules for Using Color in Charts”.\\
-theme_fivethirtyeight: a theme based on the plots at fivethirtyeight.com.\\
-theme_gdocs: a theme based on Google Docs.\\
-theme_hc: a theme based on Highcharts JS.\\
-theme_par: a theme that uses the current values of the base graphics parameters in par.\\
-theme_pander: a theme to use with the pander package.\\
-theme_solarized: a theme using the solarized color palette.\\
-theme_stata: themes based on Stata graph schemes.\\
-theme_tufte: a minimal ink theme based on Tufte’s The Visual Display of Quantitative Information.\\
-theme_wsj: a theme based on the plots in the The Wall Street Journal.\\
+* theme_base: a theme resembling the default base graphics in R. See also theme_par
+* theme_calc: a theme based on LibreOffice Calc.
+* theme_economist: a theme based on the plots in the The Economist magazine.
+* theme_excel: a theme replicating the classic ugly gray charts in Excel
+* theme_few: theme from Stephen Few’s “Practical Rules for Using Color in Charts”.
+* theme_fivethirtyeight: a theme based on the plots at fivethirtyeight.com.
+* theme_gdocs: a theme based on Google Docs.
+* theme_hc: a theme based on Highcharts JS.
+* theme_par: a theme that uses the current values of the base graphics parameters in par.
+* theme_pander: a theme to use with the pander package.
+* theme_solarized: a theme using the solarized color palette.
+* theme_stata: themes based on Stata graph schemes.
+* theme_tufte: a minimal ink theme based on Tufte’s The Visual Display of Quantitative Information.
+* theme_wsj: a theme based on the plots in the The Wall Street Journal.
 
 
 ## Option 2: Fix font-Problem and use hrbrthemes
 
 ### Windows
 
+1. 
+2. 
+3. 
+
 ### Mac
 
+Since I don't have a mac to test this, I cannot guarantee a safe solution, but you should be able to install **Roboto** through the steps outlined [here] (https://www.maceinsteiger.de/how-to/fonts-schriften-unter-mac-os-installieren/)
+
 ### Final steps 
+
+Now, we have to sync the font types on your PC/Mac with R-Studio **once**
+
+```{r,warning = FALSE,eval = FALSE}
+
+```
+
+
+Then, everytime you want to plot something, do the following: 
 
 ```{r,warning = FALSE,eval = FALSE}
 #install.packages("hrbrthemes")
