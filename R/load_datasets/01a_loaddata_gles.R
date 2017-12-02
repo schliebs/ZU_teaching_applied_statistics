@@ -14,9 +14,11 @@ library(extrafont)
 # Laden des Datensatzes
 library(haven)
 
+setwd("C:/Users/Schliebs/OneDrive/github/ZU_teaching_applied_statistics/")
 # Laden des Datensatzes ACHTUNG: Die Daten sind aus rechtlichen Gründen nicht auf github
 gles <- read_spss(file = "data/offline/gles/ZA6800_v1-0-0.sav",
                   user_na = T)
+
 
 # Fix das Label-Problem
 gles[] <- lapply(gles, unclass)  
