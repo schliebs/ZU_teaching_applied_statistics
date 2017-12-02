@@ -2,7 +2,7 @@
 title: "Fix fonts for hrbrthemes-ggplot-theme"
 author: "Marcel Schliebs"
 date: "2 Dezember 2017"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
