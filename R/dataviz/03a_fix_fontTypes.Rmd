@@ -1,0 +1,113 @@
+---
+title: "Fix fonts for hrbrthemes-ggplot-theme"
+author: "Marcel Schliebs"
+date: "2 Dezember 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(hrbrthemes)
+library(extrafont)
+loadfonts(device="pdf")
+```
+
+# Nachtrag: Schriftarten-Problem
+
+Some of you (or all of you, to be more precise) had problems with exporting ggplot-graphs to pdf when the **hrbrthemes**-package was used. This is due to the fact that the package relies on the so called Roboto font type, which is not installed on many devices. 
+
+We thus have the following options: 
+
+## Use another (more basic theme)
+
+If you wanna go for the easy way, just use one of the many, many other existing themes. 
+
+```{r,warning = FALSE}
+library(ggplot2)
+p <- ggplot(mtcars, aes(wt, mpg))
+p + geom_point(aes(colour = factor(cyl)))
+
+```
+
+Therefore, we will need to install and load just one little additional package: **ggthemes**
+
+```{r,warning = FALSE}
+#install.packages("ggthemes")
+library(ggthemes)
+```
+
+
+We can now add one of the following basic, built-in and always-functioning themes: 
+First, the so called **black-white**-Theme: 
+
+```{r,warning = FALSE}
+p + 
+  geom_point(aes(colour = factor(cyl))) + 
+  theme_bw()
+```
+
+Also, we could use a nice **economist-theme**
+```{r,warning = FALSE}
+p + 
+  geom_point(aes(colour = factor(cyl))) + 
+   theme_economist()
+```
+
+Furthermore, your possibilities are unlimited: try out one of the following themes:
+
+theme_base: a theme resembling the default base graphics in R. See also theme_par\\
+theme_calc: a theme based on LibreOffice Calc.\\
+theme_economist: a theme based on the plots in the The Economist magazine.\\
+theme_excel: a theme replicating the classic ugly gray charts in Excel\\
+theme_few: theme from Stephen Few’s “Practical Rules for Using Color in Charts”.\\
+theme_fivethirtyeight: a theme based on the plots at fivethirtyeight.com.\\
+theme_gdocs: a theme based on Google Docs.\\
+theme_hc: a theme based on Highcharts JS.\\
+theme_par: a theme that uses the current values of the base graphics parameters in par.\\
+theme_pander: a theme to use with the pander package.\\
+theme_solarized: a theme using the solarized color palette.\\
+theme_stata: themes based on Stata graph schemes.\\
+theme_tufte: a minimal ink theme based on Tufte’s The Visual Display of Quantitative Information.\\
+theme_wsj: a theme based on the plots in the The Wall Street Journal.\\
+
+
+## Option 2: Fix font-Problem and use hrbrthemes
+
+### Windows
+
+### Mac
+
+### Final steps 
+
+```{r,warning = FALSE,eval = FALSE}
+#install.packages("hrbrthemes")
+library(ggplot2)
+library(hrbrthemes)
+library(extrafont)
+loadfonts(device="pdf")
+```
+
+We are now able to fully use the **hrbrthemes**-package. For more inspiration, go to [here] (https://github.com/hrbrmstr/hrbrthemes)
+
+```{r,warning = FALSE}
+p <- 
+  ggplot(mtcars, aes(wt, mpg))+
+  geom_point(aes(colour = factor(cyl))) + 
+  labs(x = "X-Achse",
+       y = "Y tho",
+       title = "Titel",
+       subtitle = "Untertitel",
+       caption = "whatever")+
+  theme_ipsum(grid = "Y")
+p
+```
+
+Finally, we can save the plot to our working directory:
+```{r,warning = FALSE,eval = FALSE}
+ggsave(filename = "results/figures/hrbr_plot.pdf",
+       plot = p,
+       device = "pdf",
+       width = 10,
+       height = 6,
+       dpi = 1000)
+```
