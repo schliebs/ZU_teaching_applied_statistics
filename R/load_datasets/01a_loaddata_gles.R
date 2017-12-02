@@ -8,14 +8,14 @@ library(magrittr)
 
 # Visualisierung:
 library(ggplot2)    
-library(hrbrthemes) # install.packages("hrbrthemes")
+library(hrbrthemes) 
 library(extrafont)
 
 # Laden des Datensatzes
 library(haven)
 
-# Laden des Datensatzes
-gles <- read_spss(file = "data/gles/ZA6800_v1-0-0.sav",
+# Laden des Datensatzes ACHTUNG: Die Daten sind aus rechtlichen Gründen nicht auf github
+gles <- read_spss(file = "data/offline/gles/ZA6800_v1-0-0.sav",
                   user_na = T)
 
 # Fix das Label-Problem
