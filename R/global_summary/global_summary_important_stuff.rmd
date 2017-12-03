@@ -84,21 +84,26 @@ At first, we need to load some packages. If you do not have them installed them 
 
 The most important packages we got to know during the semester were:
 
-Data management:
+Data management
+
 * `plyr`: Plyr is the older (and outdated) brother of tidyverse. We always need to load it once BEFORE (!) the latter in order to avoid nasty conflicts. 
 * `tidyverse`: A very useful collection of tools for data-management. 
 * `magrittr`: Gives us the beautiful Doppelpipe `%<>%`
 
-Data Loading: 
+Data Loading
+
 * `haven` enables us to nicely import .sav or .dta Datasets.
 
 Data Viz
+
 * `ggplot2` is the most beautiful shit ever
 * `ggthemes` and `hrbrthemes` make it even more brilliant
 * `extrafont` fixes a problem with fonts for outputting plots to pdf
+* `stargazer` gives us nice regression output tables
+
 
 We load the most important packages
-```{r,warning = FALSE}
+```{r,warning = FALSE,message = FALSE}
 library(plyr)
 library(tidyverse)
 library(magrittr)
@@ -109,6 +114,8 @@ library(ggplot2)
 library(ggthemes)
 library(hrbrthemes)
 library(extrafont)
+
+library(stargazer)
 ```
 
 
@@ -122,28 +129,354 @@ gles <- read_spss(file = "data/offline/gles/ZA6800_v1-0-0.sav",
 
 ```
 
-Ein erster Überblick
+With this most recent dataset, we need to apply a little trick to fix a problem with labels. 
+
 ```{r,warning = FALSE}
-str(gles)
-head(gles)
+gles[] <- lapply(gles, unclass)
+```
+
+A first overview
+```{r,warning = FALSE}
+# str(gles)
+# head(gles)
 ```
 
 
-# Daten Rekodieren
+# Data Recoding
+
+We can now go on to recode the data. We therefore use to double-pipe `%<>%` in order to not have to type `gles$` every single time.
 
 ```{r,warning = FALSE}
 
+gles%<>%within({
+  
+  #Jamaika: AV
+  jamaika <- q73f
+  jamaika[q73f %in% c(-99, -98)] <- NA
+  jamaika_z <- jamaika - 6 # center on the middle of the scale
+  
+  #GroKo: UV1
+  
+  zufr_groko <- q67 
+  zufr_groko[q67 %in% c(-99,-98)]<- NA
+  zufr_groko_z <- zufr_groko -6 # center on the middle of the scale
+  
+  #Migration: UV2
+  
+  migration <- q60
+  migration [q60 %in% c(-99,-98)] <- NA
+  migration_z <- migration -6  # center on the middle of the scale
+  
+
+  #Partei ID: #Codiere nur spefifizierte Parteien
+  pid <- NA
+  pid[q99a %in% c(1,2,3)]<- "union"
+  pid[q99a %in% c(4)]<-     "spd"
+  pid[q99a %in% c(6)]<-    "gruene"
+  pid[q99a %in% c(7)]<-    "linke"
+  pid[q99a %in% c(5)]<-    "fdp"
+  pid[q99a %in% c(322)]<-  "afd"
+  pid[q99a %in% c(808)]<- "none"
+  
+  # Make Union the reference category
+  pid <- factor(pid)
+  pid <- relevel (pid,ref = "union") #make union the reference category
+  
+  #Sex
+  gender <- factor(x = q1,levels = 1:2,labels = c("male","female"))
+
+  #Age
+  
+  alter <- 2017-q2a #gebursjahr
+  alter [q2a %in% c(-97,-98,-99)] <- NA
+  alter_z <- alter-mean(alter,na.rm = TRUE) # center on the mean
+  
+  #Ost/West: Recode after Geburtstland bula
+  '
+    (1) Baden-Württemberg
+    (2) Bayern
+    (3) Berlin
+    (4) Brandenburg
+    (5) Bremen
+    (6) Hamburg
+    (7) Hessen
+    (8) Mecklenburg-Vorpommern
+    (9) Niedersachsen
+    (10) Nordrhein-Westfalen
+    (11) Rheinland-Pfalz
+    (12) Saarland
+    (13) Sachsen
+    (14) Sachsen-Anhalt
+    (15) Schleswig-Holstein
+    (16) Thüringen
+  '
+  ost <- NA
+  ost[bula %in% c(1,2,5,6,7,9,10,11,12,15)] <- 0
+  ost[bula %in% c(3,4,8,13,14,16)] <- 1
+  ost[bula %in% c(-97,-98,-99)] <- NA
+
+})
 ```
 
 
-# Einfache Scatterplots
+# Descriptive Statistics
 
-## Zusammenhang Sympathie Jamaika ~ Migrationseinstellung
+## Dependent Variable: Jamaika
 
 ```{r,warning = FALSE}
-                           
+
+# Jamaika
+gles$jamaika_z %>% table %>% prop.table %>% round(2)
+
+# Migrationseinstellung
+gles$migration_z %>% table %>% prop.table %>% round(2)  
+
+# Zufriedenheit Groko
+gles$zufr_groko_z %>% table %>% prop.table %>% round(2) 
+
+#Alter
+gles$alter_z %>% hist()                   
+
+#Gender
+gles$gender %>% table %>% prop.table %>% round(2)   
+
+#Ost/West
+gles$ost %>% table %>% prop.table %>% round(2)                           
   
 ```
 
+## Independent/Control Variable: Party Identification
+
+For a more detailed introduction to `ggplot2`, please click [here] (https://github.com/schliebs/ZU_teaching_applied_statistics/blob/master/R/datavisualization_ggplot/01b_ggplot_gles_TUTORIAL.md) 
+
+```{r,warning = FALSE}
+
+gles$pid %>% table %>% prop.table %>% round(2)                           
+
+# Have a graphical look at it:
+ggplot(data = gles,
+       aes(x = pid,
+           y = (..count..)/sum(..count..), # relative häufigkeit 
+           fill = pid)) + 
+  geom_bar(stat = "count")+ # Farblich 
+  
+  geom_text(aes(x = pid,
+                y=..count../sum(..count..)+0.02,
+                label=paste0(round(..count../sum(..count..)*100,1)," %"),
+                color = pid), 
+            stat="count")+
+  scale_fill_manual(values = c("afd" = "blue",
+                               "fdp" = "yellow",
+                               "gruene" = "green",
+                               "none" = "grey",
+                               "linke" = "purple",
+                               "spd" = "red",
+                               "union" = "black"),
+                    name = "PID",
+                    labels = c("AfD","Andere","FDP","Grüne","Linke","SPD","Union"))+
+  scale_color_manual(values = c("afd" = "blue",
+                                "fdp" = "yellow",
+                                "gruene" = "green",
+                                "none" = "grey",
+                                "linke" = "purple",
+                                "spd" = "red",
+                                "union" = "black"),
+                     name = "PID",
+                     labels = c("AfD","Andere","FDP","Grüne","Linke","SPD","Union"))+
+  labs(x = "Partei", 
+       y = "Anteil PID",
+       title = "Titel",
+       subtitle = "Untertitel",
+       caption = "whatever") + 
+  theme_ipsum(grid = "Y") 
+```
+
+
+# Model building
+
+For our analysis, we now build a sub model data frame with only our relevant variables included. 
+
+```{r,warning = FALSE}
+gles_data <- gles %>% select(jamaika_z,pid,migration_z,zufr_groko_z,alter_z,gender,ost)
+```
+
+We have a look at the first 10 observations:
+```{r,warning = FALSE}
+head(gles_data,n = 10)
+```
+
+We see that some have NA still. We thus throw out all rows that include at least one NA.
+
+```{r,warning = FALSE}
+gles_data %<>% na.omit()
+```
+
+
+## Relationship between Sympathy Jamaika and Issue position migration
+
+We estimate our first linear base model
+```{r,warning = FALSE}
+mod1 <- lm(jamaika_z ~ migration_z, data = gles_data)
+summary(mod1)
+```
+
+We further suspect that there is an interaction between **pid** and the **migration position**
+```{r,warning = FALSE}
+mod2 <- lm(jamaika_z ~ migration_z * pid, data = gles_data)
+summary(mod2)
+```
+
+Finally, we include the **government satisfaction**, **age**, **gender** and **East/West** as control variables. 
+```{r,warning = FALSE}
+mod3 <- lm(jamaika_z ~ migration_z * pid + zufr_groko_z + alter_z + gender, data = gles_data)
+summary(mod3)
+```
+Try to interpret the results!
+
+# Regression Output: 
+
+We make use of the nice stargazer-package. The file to embed in your word will be written in your results/tables folder. 
+```{r,warning = FALSE,eval = FALSE}
+stargazer(mod1,mod2,mod3,  #regression models 
+          type = "html", # character vector (eg. "text" / "html" / "latex")
+          title = "Hier steht die Überschrift",  # header
+          style = "default",  # style (choice see below)
+          summary = NULL,  # logical vector: output summary statistics when given data.frame,
+          out = "results/tables/all_models.html", # path and output of file
+          out.header = FALSE, # logical vector: should output file contain code-header?
+          column.labels = c("Base Model","Including Interaction","Full model"), # column labels for mod1/mod2
+          column.separate = c(1,1),  # how column labels should be assigned (label over sev. columns possible)
+          covariate.labels = c("Migration",  # Covariate Labels
+                               "PID AfD (Reference CDU)",
+                               "PID FDP",
+                               "PID Grüne",
+                               "PID Linke",
+                               "PID None",
+                               "PID SPD",
+                               "Zufriedenheit Groko",
+                               "Age",
+                               "Gender female (ref. male)",
+                               "Interaktion Migration : PID AfD",
+                               "Interaktion Migration : PID FDP",
+                               "Interaktion Migration : PID Grüne",
+                               "Interaktion Migration : PID Linke",
+                               "Interaktion Migration : PID None",
+                               "Interaktion Migration : PID SPD", 
+                               "Intercept"),
+          dep.var.caption = "Dep. Var", # Caption (Top) of dependent variable
+          star.cutoffs = c(0.05,0.01,0.001),
+          dep.var.labels = c("Sympathie Jamaika")
+)
+```
+
+<table style="text-align:center"><caption><strong>Hier steht die Überschrift</strong></caption>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="3">Dep. Var</td></tr>
+<tr><td></td><td colspan="3" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td colspan="3">Sympathie Jamaika</td></tr>
+<tr><td style="text-align:left"></td><td>Base Model</td><td>Including Interaction</td><td>Full model</td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Migration</td><td>-0.121<sup>***</sup></td><td>-0.239<sup>***</sup></td><td>-0.178<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.020)</td><td>(0.036)</td><td>(0.036)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">PID AfD (Reference CDU)</td><td></td><td>-2.065<sup>**</sup></td><td>-1.529<sup>*</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.698)</td><td>(0.682)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">PID FDP</td><td></td><td>0.826<sup>**</sup></td><td>1.009<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.270)</td><td>(0.264)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">PID Grüne</td><td></td><td>-0.852<sup>***</sup></td><td>-0.664<sup>**</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.232)</td><td>(0.229)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">PID Linke</td><td></td><td>-2.322<sup>***</sup></td><td>-1.579<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.210)</td><td>(0.216)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">PID None</td><td></td><td>-0.741<sup>***</sup></td><td>-0.372<sup>*</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.166)</td><td>(0.167)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">PID SPD</td><td></td><td>-1.495<sup>***</sup></td><td>-1.206<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.163)</td><td>(0.160)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Zufriedenheit Groko</td><td></td><td></td><td>0.260<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td>(0.025)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Age</td><td></td><td></td><td>-0.012<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td>(0.003)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Gender female (ref. male)</td><td></td><td></td><td>-0.016</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td>(0.105)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Interaktion Migration : PID AfD</td><td></td><td>-0.037</td><td>0.085</td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.176)</td><td>(0.171)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Interaktion Migration : PID FDP</td><td></td><td>0.041</td><td>0.033</td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.109)</td><td>(0.106)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Interaktion Migration : PID Grüne</td><td></td><td>0.375<sup>***</sup></td><td>0.311<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.087)</td><td>(0.084)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Interaktion Migration : PID Linke</td><td></td><td>0.189<sup>**</sup></td><td>0.197<sup>**</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.068)</td><td>(0.066)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Interaktion Migration : PID None</td><td></td><td>0.096</td><td>0.113<sup>*</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.055)</td><td>(0.053)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Interaktion Migration : PID SPD</td><td></td><td>0.155<sup>**</sup></td><td>0.141<sup>*</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.059)</td><td>(0.057)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Intercept</td><td>-0.551<sup>***</sup></td><td>0.307<sup>**</sup></td><td>-0.291<sup>*</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.060)</td><td>(0.103)</td><td>(0.126)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Observations</td><td>1,935</td><td>1,935</td><td>1,935</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.018</td><td>0.136</td><td>0.187</td></tr>
+<tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>0.017</td><td>0.130</td><td>0.180</td></tr>
+<tr><td style="text-align:left">Residual Std. Error</td><td>2.501 (df = 1933)</td><td>2.353 (df = 1921)</td><td>2.284 (df = 1918)</td></tr>
+<tr><td style="text-align:left">F Statistic</td><td>35.440<sup>***</sup> (df = 1; 1933)</td><td>23.263<sup>***</sup> (df = 13; 1921)</td><td>27.604<sup>***</sup> (df = 16; 1918)</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="3" style="text-align:right"><sup>*</sup>p<0.05; <sup>**</sup>p<0.01; <sup>***</sup>p<0.001</td></tr>
+</table>
+
+
+
+# Data viz
+
+Finally, we can visualize the results in a nice scatterplot. Too see how this is exactly built, check out the seperate ggplot-Tutorial. 
+
+```{r,warning = FALSE}
+gg <-  
+  ggplot(data = gles_data,                          
+       mapping = aes(x = migration_z,        
+                     y = jamaika_z,
+                     col = pid)) +  
+  geom_jitter(alpha = 0.7) +  
+  geom_smooth(size = 2,method = "lm",se = FALSE)+ 
+  scale_color_manual(values = c("afd" = "blue",
+                                "fdp" = "yellow",
+                                "gruene" = "green",
+                                "none" = "grey",
+                                "linke" = "purple",
+                                "spd" = "red",
+                                "union" = "black"),
+                     name = "PID",
+                     labels = c("AfD","FDP","Grüne","Keine","Linke","SPD","Union")) + 
+  labs(x = "Migrationsfeindlichkeit", 
+       y = "Sympathie Jamaika",
+       title = "Titel",
+       subtitle = "Untertitel",
+       caption = "whatever") + 
+ theme_ipsum(grid = "Y") 
+
+gg #print
+```
+
+
+Now embed it as a pdf in your paper. 
+
+```{r,warning = FALSE,eval=FALSE}
+ggsave(filename = "results/gles_jitterplot.pdf",
+       plot = gg,
+       device = "pdf",
+       width = 10,
+       height = 6,
+       dpi = 2000)
+```
 
 
