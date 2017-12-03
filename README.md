@@ -20,5 +20,6 @@ The collection includes the following bits:
 
 8. [The full code for stargazer regression outputs] (https://github.com/schliebs/ZU_teaching_applied_statistics/tree/master/R/regressionoutput_stargazer) 
 
+9. [And a beta-version of an interactive tutorial online with self-correction online] (https://schliebs.shinyapps.io/wdhaufgaben/)
 
 Note that due to copyright reasons, the data is stored in a subfolder of **data** called **offline** which is NOT included in this repository. You need to add the datasets manually! 
