@@ -19,3 +19,6 @@ The collection includes the following bits:
 7. [All the code for ggplot] (https://github.com/schliebs/ZU_teaching_applied_statistics/tree/master/R/datavisualization_ggplot)
 
 8. [The full code for stargazer regression outputs] (https://github.com/schliebs/ZU_teaching_applied_statistics/tree/master/R/regressionoutput_stargazer) 
+
+
+Note that due to copyright reasons, the data is stored in a subfolder of **data** called **offline** which is NOT included in this repository. You need to add the datasets manually! 
