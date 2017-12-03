@@ -193,8 +193,6 @@ ggsave(filename = "entlassung.pdf",
        device = "pdf",
        dpi = 1000)
 
-Was zeigt ein Scatterplott an?
-Warum macht es Sinn bei Likert-Skalen Items einen Jitterplot (geom_jitter()) zu verewenden)'
 
 
 ## Gibt es einen Zusammenhang zwischen der Erwartung der wirtschaftlichen Entwicklung und der Sympathie für die AfD?
